@@ -74,6 +74,13 @@ subprojects {
 
   configurations.configureEach {
     exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
+    
+    // FIX: Handle relocated xml-apis dependency
+    resolutionStrategy {
+      dependencySubstitution {
+        substitute(module("xml-apis:xml-apis:1.0.b2")).using(module("xml-apis:xml-apis:2.0.2"))
+      }
+    }
   }
 
   plugins.withId("com.android.application") {
