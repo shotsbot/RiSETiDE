@@ -53,6 +53,13 @@ buildscript {
 // Root project has 'com.itsaky.androidide' as the group ID
 project.group = BuildConfig.packageName
 
+// Configure resolution strategy to handle xml-apis dependency issues
+configurations.all {
+  resolutionStrategy {
+    exclude(group = "xml-apis", module = "xml-apis")
+  }
+}
+
 subprojects {
   if (project != rootProject) {
     var group = project.parent!!.group
@@ -74,6 +81,7 @@ subprojects {
 
   configurations.configureEach {
     exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
+    exclude(group = "xml-apis", module = "xml-apis")
   }
 
   plugins.withId("com.android.application") {
