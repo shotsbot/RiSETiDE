@@ -130,7 +130,7 @@ logging-logback-classic = { module = "ch.qos.logback:logback-classic", version.r
 
 # XML
 xml-xercesImpl = { module = "xerces:xercesImpl", version = "2.12.2" }
-xml-apis = { module = "xml-apis:xml-apis", version = "2.0.2" }
+xml-apis = { module = "xml-apis:xml-apis", version = "1.4.01" }
 xml-remark = { module = "com.kotcrab.remark:remark", version = "1.2.0" }
 xml-resolver = { module = "xml-resolver:xml-resolver", version = "1.2" }
 xml-jb-annotations = { module = "org.jetbrains:annotations", version = "24.1.0" }
