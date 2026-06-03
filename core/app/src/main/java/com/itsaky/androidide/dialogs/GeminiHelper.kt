@@ -38,7 +38,7 @@ class GeminiHelper(
     private val uiThreadExecutor: (block: () -> Unit) -> Unit
 ) {
     companion object {
-        const val DEFAULT_GEMINI_MODEL = "gemini-1.5-flash"
+        const val DEFAULT_GEMINI_MODEL = "gemini-2.5-pro"
         private const val RAW_LOG_TAG = "GemHelper_RAW"
         private const val PIPE = "AI_PIPELINE"
 
@@ -547,8 +547,9 @@ class GeminiHelper(
                 if (path.isNotBlank()) filesMap[path] = content
             }
         } catch (e: JSONException) {
-            Log.e("GeminiHelper", "Error parsing AiMinimalFilesResponse JSON: '$jsonText'. Error: ${e.message}", e)
-            return null
+            Log.w("GeminiHelper", "Minimal JSON parse failed; trying markdown code blocks. Error: ${e.message}")
+            val markdownWrites = AiMarkdownCodeBlockParser.parseFileWrites(jsonText)
+            return markdownWrites.takeIf { it.isNotEmpty() }
         }
         return filesMap.takeIf { it.isNotEmpty() }
     }
@@ -586,7 +587,13 @@ class GeminiHelper(
             }
             conclusion = root.optStringByKeys("conclusion", "summary")
         } catch (e: JSONException) {
-            Log.e("GeminiHelper", "Error parsing AiStructuredResponse JSON: '$jsonText'. Error: ${e.message}", e)
+            Log.w("GeminiHelper", "Structured JSON parse failed; trying markdown code blocks. Error: ${e.message}")
+            AiMarkdownCodeBlockParser.parseFileWrites(jsonText).forEach { (path, content) ->
+                filesToWrite.add(AiFileInstruction(path, content))
+            }
+            if (filesToWrite.isNotEmpty()) {
+                conclusion = "Parsed ${filesToWrite.size} file update(s) from markdown code blocks."
+            }
         }
         Log.d(PIPE, "parseAiStructuredResponse: writes=${filesToWrite.size}, deletes=${filesToDelete.size}, hasConclusion=${!conclusion.isNullOrBlank()}")
         return AiStructuredResponse(

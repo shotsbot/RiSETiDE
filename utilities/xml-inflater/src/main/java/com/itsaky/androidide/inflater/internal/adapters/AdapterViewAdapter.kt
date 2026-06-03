@@ -35,9 +35,11 @@ abstract class AdapterViewAdapter<T : AdapterView<*>> : ViewGroupAdapter<T>() {
     const val ADAPTER_DEFAULT_ITEM_COUNT = 3
   }
 
+  @Suppress("UNCHECKED_CAST")
   override fun applyBasic(view: IView) {
     super.applyBasic(view)
-    (view.view as AdapterView<*>).adapter = newSimpleAdapter(view.view.context)
+    val adapterView = view.view as AdapterView<ArrayAdapter<String>>
+    adapterView.adapter = newSimpleAdapter(view.view.context)
     if (view is ViewGroupImpl) {
       view.childrenModifiable = false
     }

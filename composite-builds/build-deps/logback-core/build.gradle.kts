@@ -26,15 +26,7 @@ java {
         val srcDir =
             rootProject.projectDir.resolve("../external/logback-android/logback-core/src/main/java")
         java.srcDirs(srcDir)
-
-        // Remove or rename module-info.java before compilation to avoid module errors
-        val modInfo = srcDir.resolve("module-info.java")
-        if (modInfo.exists() && modInfo.isFile) {
-            // Try to delete first, fallback to rename if delete fails
-            if (!modInfo.delete()) {
-                modInfo.renameTo(srcDir.resolve("module-info.java.exclude"))
-            }
-        }
+        java.exclude("module-info.java")
     }
 
     sourceCompatibility = JavaVersion.VERSION_11
@@ -42,8 +34,9 @@ java {
 }
 
 tasks.withType<JavaCompile> {
-    // Ensure module-info.java is not compiled even if present
+    // Ensure module-info.java is not compiled even if present.
     exclude("module-info.java")
+    modularity.inferModulePath.set(false)
 }
 
 //noinspection UseTomlInstead GradleDynamicVersion
