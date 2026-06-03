@@ -16,7 +16,6 @@ import android.view.ViewGroup.LayoutParams
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.DrawableRes
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.collection.MutableIntObjectMap
 import androidx.core.content.res.ResourcesCompat
@@ -1028,7 +1027,7 @@ open class EditorHandlerActivity : ProjectHandlerActivity(), IEditorHandler {
       }
 
       val dupliCount = mutableMapOf<String, Int>()
-      val names = MutableIntObjectMap<Pair<String, @DrawableRes Int>>()
+      val names = MutableIntObjectMap<Pair<String, Int>>()
       val nameBuilder = UniqueNameBuilder<File>("", File.separator)
 
       files.forEach { file ->

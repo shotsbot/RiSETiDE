@@ -34,6 +34,7 @@ class DefaultAndroidArtifact : AndroidArtifact, Serializable {
   override var bundleInfo: DefaultBundleInfo? = null
   override var codeShrinker: CodeShrinker? = null
   override var generatedResourceFolders: Collection<File> = emptyList()
+  override var generatedAssetsFolders: Collection<File> = emptyList()
   override var isSigned: Boolean = false
   override var maxSdkVersion: Int? = null
   override var minSdkVersion: DefaultApiVersion = DefaultApiVersion()

@@ -5,6 +5,7 @@ import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
 import java.io.IOException
+import java.nio.file.InvalidPathException
 import java.util.Locale // Added for lowercase
 
 object ProjectFileUtils {
@@ -43,6 +44,38 @@ object ProjectFileUtils {
         return codeExtensions.any { filename.lowercase(Locale.ROOT).endsWith(it) }
     }
 
+    /**
+     * Resolves an AI-provided relative path inside [projectDir].
+     *
+     * This is intentionally fail-safe: absolute paths, blank paths, Windows drive paths, and
+     * traversal attempts such as `../settings.gradle.kts` are rejected before any write/delete is
+     * attempted. The method does not require the destination file to already exist.
+     */
+    fun safeResolveProjectPath(projectDir: File, relativePath: String): File? {
+        if (relativePath.isBlank()) return null
+        return try {
+            val sanitizedPath = relativePath.trim()
+                .replace('\\', '/')
+                .removePrefix("./")
+            if (sanitizedPath.startsWith('/') || Regex("^[A-Za-z]:").containsMatchIn(sanitizedPath)) {
+                Log.w(TAG, "Rejected unsafe absolute path from AI response: $relativePath")
+                return null
+            }
+
+            val rootPath = projectDir.toPath().toAbsolutePath().normalize()
+            val resolvedPath = rootPath.resolve(sanitizedPath).normalize()
+            if (!resolvedPath.startsWith(rootPath)) {
+                Log.w(TAG, "Rejected path traversal from AI response: $relativePath")
+                null
+            } else {
+                resolvedPath.toFile()
+            }
+        } catch (e: InvalidPathException) {
+            Log.w(TAG, "Rejected invalid path from AI response: $relativePath", e)
+            null
+        }
+    }
+
     fun processFileChangesAndDeletions(
         projectDir: File,
         filesToWrite: Map<String, String>,
@@ -60,11 +93,12 @@ object ProjectFileUtils {
         if (filesToDelete.isNotEmpty()) {
             logAppender("Deletion Phase: Attempting to delete ${filesToDelete.size} file(s).\n")
             filesToDelete.forEach { relativePath ->
-                if (relativePath.isBlank()) {
-                    logAppender("⚠️ Attempted to delete a file with a blank path. Skipping.\n")
+                val file = safeResolveProjectPath(projectDir, relativePath)
+                if (file == null) {
+                    logAppender("⚠️ Unsafe or blank delete path rejected: $relativePath\n")
+                    deleteError++
                     return@forEach
                 }
-                val file = File(projectDir, relativePath)
                 if (file.exists()) {
                     try {
                         if (file.isFile) {
@@ -103,11 +137,12 @@ object ProjectFileUtils {
         if (filesToWrite.isNotEmpty()) {
             logAppender("Writing Phase: Attempting to write/update ${filesToWrite.size} file(s).\n")
             filesToWrite.forEach { (relativePath, content) ->
-                if (relativePath.isBlank()) {
-                    logAppender("⚠️ Attempted to write a file with a blank path. Skipping.\n")
+                val file = safeResolveProjectPath(projectDir, relativePath)
+                if (file == null) {
+                    logAppender("⚠️ Unsafe or blank write path rejected: $relativePath\n")
+                    writeError++
                     return@forEach
                 }
-                val file = File(projectDir, relativePath)
                 try {
                     file.parentFile?.mkdirs()
                     FileWriter(file).use { it.write(content) }

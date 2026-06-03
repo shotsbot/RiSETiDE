@@ -17,6 +17,7 @@
 
 
 import com.itsaky.androidide.build.config.BuildConfig
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -26,7 +27,7 @@ plugins {
 
 java {
   toolchain {
-    languageVersion.set(JavaLanguageVersion.of(17)) // Force Java tasks to target JVM 17
+    languageVersion.set(JavaLanguageVersion.of(BuildConfig.javaVersion.majorVersion.toInt()))
   }
 }
 
@@ -48,5 +49,7 @@ sourceSets.main {
 }
 
 tasks.withType<KotlinCompile> {
-  kotlinOptions.jvmTarget = "17"
+  compilerOptions {
+    jvmTarget.set(JvmTarget.fromTarget(BuildConfig.javaVersion.toString()))
+  }
 }

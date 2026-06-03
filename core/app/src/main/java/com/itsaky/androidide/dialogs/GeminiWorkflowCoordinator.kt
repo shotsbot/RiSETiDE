@@ -137,7 +137,11 @@ class GeminiWorkflowCoordinator(
         AiForegroundService.start(bridge.getContextBridge(), "Analyzing project for $appName")
 
         allProjectFiles = ProjectFileUtils.scanProjectFiles(projectDir)
-        Log.d("AI_PIPELINE", "Project scan completed: files=${allProjectFiles.size} -> ${allProjectFiles.take(50)}${if (allProjectFiles.size > 50) " ... (total ${allProjectFiles.size})" else ""}")
+        val contextSnapshot = AiProjectContextPackager.buildSnapshot(projectDir)
+        Log.d("AI_PIPELINE", "Project scan completed: files=${allProjectFiles.size}, chunks=${contextSnapshot.chunks.size}, contextChars=${contextSnapshot.totalChars}, truncated=${contextSnapshot.truncated} -> ${allProjectFiles.take(50)}${if (allProjectFiles.size > 50) " ... (total ${allProjectFiles.size})" else ""}")
+        if (contextSnapshot.truncated) {
+            logViaBridge("⚠️ Project context was chunked/truncated for LLM token safety (${contextSnapshot.totalChars} chars retained).\n")
+        }
 
         if (allProjectFiles.isEmpty()) {
             logViaBridge("Project is empty. Asking AI to generate initial files.\n")

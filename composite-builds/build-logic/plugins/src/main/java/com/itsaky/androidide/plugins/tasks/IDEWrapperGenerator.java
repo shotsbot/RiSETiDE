@@ -47,7 +47,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import kotlin.io.FilesKt;
 import org.gradle.api.GradleException;
-import org.gradle.api.Incubating;
 import org.gradle.api.Project;
 import org.gradle.api.UncheckedIOException;
 import org.gradle.api.internal.file.FileLookup;
@@ -58,8 +57,6 @@ import org.gradle.api.tasks.options.Option;
 import org.gradle.api.tasks.options.OptionValues;
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType;
 import org.gradle.api.tasks.wrapper.Wrapper.PathBase;
-import org.gradle.api.tasks.wrapper.WrapperVersionsResources;
-import org.gradle.api.tasks.wrapper.internal.DefaultWrapperVersionsResources;
 import org.gradle.util.GradleVersion;
 import org.gradle.util.internal.GUtil;
 import org.gradle.util.internal.WrapperDistributionUrlConverter;
@@ -234,20 +231,6 @@ public class IDEWrapperGenerator {
    */
   public void setDistributionPath(String distributionPath) {
     this.distributionPath = distributionPath;
-  }
-
-  /**
-   * Set Wrapper versions resources.
-   *
-   * @since 8.1
-   */
-  @Incubating
-  public void setWrapperVersionsResources(WrapperVersionsResources wrapperVersionsResources) {
-    DefaultWrapperVersionsResources defaultWrapperVersionsResources = (DefaultWrapperVersionsResources) wrapperVersionsResources;
-    gradleVersionResolver.setTextResources(defaultWrapperVersionsResources.getLatest(),
-        defaultWrapperVersionsResources.getReleaseCandidate(),
-        defaultWrapperVersionsResources.getNightly(),
-        defaultWrapperVersionsResources.getReleaseNightly());
   }
 
   /**
@@ -446,7 +429,6 @@ public class IDEWrapperGenerator {
    * @since 7.6
    */
 
-  @Incubating
   @Optional
   @Option(option = "network-timeout", description = "Timeout in ms to use when the wrapper is performing network operations.")
   public Integer getNetworkTimeout() {
@@ -459,7 +441,6 @@ public class IDEWrapperGenerator {
    * @return whether this task will validate the distribution url
    * @since 8.2
    */
-  @Incubating
 
   @Option(option = "validate-url", description = "Sets task to validate the configured distribution url.")
   public Boolean getValidateDistributionUrl() {

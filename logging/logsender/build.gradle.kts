@@ -36,7 +36,7 @@ android {
   namespace = "${BuildConfig.packageName}.logsender"
 
   defaultConfig {
-    minSdk = 16
+    minSdk = BuildConfig.minSdk
 
     vectorDrawables {
       useSupportLibrary = true
@@ -44,8 +44,8 @@ android {
   }
 
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = BuildConfig.javaVersion
+    targetCompatibility = BuildConfig.javaVersion
   }
 
   buildFeatures.apply {
